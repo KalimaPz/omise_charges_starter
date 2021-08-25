@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:omise_playground/pages/MainHomePage.dart';
 
 import 'pages/HomePage.dart';
 
@@ -12,8 +13,11 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      
-      home: HomePage(),
+      initialRoute: "/",
+      routes: {
+        MainHomePage.routeName : (context) => MainHomePage()
+      },
+      home: MainHomePage(),
     );
   }
 }
