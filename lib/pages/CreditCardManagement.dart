@@ -1,4 +1,7 @@
+import 'package:credit_card_type_detector/credit_card_type_detector.dart';
 import 'package:flutter/material.dart';
+import 'package:omise_playground/local_db/CardAccessObject.dart';
+import 'package:omise_playground/model/OwnCard.dart';
 import 'package:omise_playground/pages/CreditCardAdd.dart';
 import 'package:omise_playground/pages/CreditCardDetail.dart';
 
@@ -10,24 +13,27 @@ class CreditCardManagement extends StatefulWidget {
 }
 
 class _CreditCardManagementState extends State<CreditCardManagement> {
+  List<OwnCard> ownedCardList = [];
   GestureDetector creditCardTile(
-      {@required String cardType, bool isDefault = false}) {
+      {@required String cardNumber, bool isDefault = false}) {
     String imageUrl = "";
+    CreditCardType cardType = detectCCType(cardNumber);
+    print(cardType.toString());
     switch (cardType) {
-      case "1":
+      case CreditCardType.amex:
         imageUrl = "assets/icon/amex.png";
         break;
-      case "2":
+      case CreditCardType.mastercard:
         imageUrl = "assets/icon/mastercard.png";
         break;
-      case "3":
+      case CreditCardType.visa:
         imageUrl = "assets/icon/visa.png";
         break;
-      case "4":
+      case CreditCardType.discover:
         imageUrl = "assets/icon/discover.png";
         break;
       default:
-        imageUrl = "assets/icon/notfound.png";
+        imageUrl = "assets/icon/unknown.png";
         break;
     }
     return GestureDetector(
@@ -68,6 +74,21 @@ class _CreditCardManagementState extends State<CreditCardManagement> {
     );
   }
 
+  initialAction() async {
+    final res = await CardAccessObject().getAllCards();
+    print(res.runtimeType);
+    setState(() {
+      ownedCardList = res;
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    initialAction();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,23 +101,23 @@ class _CreditCardManagementState extends State<CreditCardManagement> {
       body: Column(
         children: [
           Expanded(
-            child: ListView(
-              shrinkWrap: true,
-              children: [
-                creditCardTile(cardType: "1", isDefault: true),
-                creditCardTile(cardType: "2"),
-                creditCardTile(cardType: "3"),
-                creditCardTile(cardType: "4"),
-              ],
+            child: ListView.builder(
+              itemCount: ownedCardList.length,
+              itemBuilder: (context, index) {
+                return creditCardTile(
+                    cardNumber: ownedCardList[index].cardNumber,
+                    isDefault: false);
+              },
             ),
           ),
           GestureDetector(
-            onTap: () {
-              Navigator.push(
+            onTap: () async {
+              await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => CreditCardAdd(),
                   ));
+              initialAction();
             },
             child: Container(
                 alignment: Alignment.center,

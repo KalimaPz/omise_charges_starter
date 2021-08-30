@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 OwnCard ownCardFromJson(String str) {
@@ -27,18 +26,18 @@ class OwnCard {
   });
 
   factory OwnCard.fromJson(Map<String, dynamic> json) => new OwnCard(
-    cardNumber: json["card_number"],
-    cardCvc: json["card_cvc"],
-    cardExpireMm: json["card_expire_mm"],
-    cardExpireYy: json["card_expire_yy"],
-    isDefault: json["isDefault"],
-  );
+        cardNumber: json["card_number"],
+        cardCvc: json["card_cvc"],
+        cardExpireMm: json["card_expire_mm"],
+        cardExpireYy: json["card_expire_yy"],
+        isDefault: json["isDefault"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "card_number": cardNumber,
-    "card_cvc": cardCvc,
-    "card_expire_mm": cardExpireMm,
-    "card_expire_yy": cardExpireYy,
-    "isDefault": isDefault,
-  };
+        "card_number": cardNumber,
+        "card_cvc": cardCvc,
+        "card_expire_mm": cardExpireMm,
+        "card_expire_yy": cardExpireYy,
+        "isDefault": isDefault,
+      };
 }

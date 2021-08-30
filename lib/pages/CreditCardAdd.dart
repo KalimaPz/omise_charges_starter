@@ -1,5 +1,10 @@
+import 'package:credit_card_type_detector/credit_card_type_detector.dart';
 import 'package:flutter/material.dart';
+import 'package:omise_playground/local_db/CardAccessObject.dart';
+import 'package:omise_playground/local_db/DatabaseSetup.dart';
 import 'package:omise_playground/model/OwnCard.dart';
+import 'package:sembast/sembast.dart';
+import 'package:sembast/sembast_io.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CreditCardAdd extends StatefulWidget {
@@ -24,20 +29,18 @@ class _CreditCardAddState extends State<CreditCardAdd> {
   SharedPreferences prefs;
   initialAction() async {
     prefs = await SharedPreferences.getInstance();
+
     print("${prefs.getString("cards")}");
   }
 
   @override
   void initState() {
     initialAction();
+    
     super.initState();
   }
 
-  void addNewCard() async {
-
-  }
-
-  
+  void addNewCard() async {}
 
   @override
   Widget build(BuildContext context) {
@@ -123,6 +126,27 @@ class _CreditCardAddState extends State<CreditCardAdd> {
               ),
             ),
           )),
+          ElevatedButton(
+              onPressed: () async {
+                // cardCollection.addNewCard();
+                // final res = await StudentDao().insertStudent(Student(name: "donnukrit",rollNo: 1));
+                final res = await CardAccessObject().insertOwnedCard(OwnCard(
+                    cardCvc: "771",
+                    cardExpireMm: "10",
+                    cardExpireYy: "23",
+                    cardNumber: "5577557129258910",
+                    isDefault: false));
+                print(res);
+              },
+              child: Text("Add Card")),
+          ElevatedButton(
+              onPressed: () async {
+                // cardCollection.getAllCard()();
+                // final res = await StudentDao().getAllStudents();
+                final res = await CardAccessObject().getAllCards();
+                print(res.toSet());
+              },
+              child: Text("Get All")),
           GestureDetector(
             onTap: () {
               addNewCard();
