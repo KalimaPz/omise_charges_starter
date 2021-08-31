@@ -9,7 +9,12 @@ class CardAccessObject {
   Future<Database> get _db async => await AppDatabase.instance.database;
 
   Future insertOwnedCard(OwnCard card) async {
-    await _ownedCardFolder.add(await _db, card.toJson());
+    final recordSnapshot =
+        await _ownedCardFolder.find(await _db); // find length
+    print(recordSnapshot.length); // last index
+
+    await _ownedCardFolder.add(
+        await _db, card.toJson(id: recordSnapshot.length + 1));
     print('OwnedCard Inserted successfully !!');
   }
 
@@ -17,18 +22,31 @@ class CardAccessObject {
     // final finder = Finder(filter: Filter.byKey(card.rollNo));
     // await _ownedCardFolder.update(await _db, card.toJson(), finder: finder);
   }
+  Future setDefaultCard(OwnCard card, bool value) async {
+    final finder = Finder(filter: Filter.byKey(card.cardId));
+    await _ownedCardFolder.update(await _db, {"isDefault": value},
+        finder: finder);
+    print("set default");
+  }
 
   Future delete(OwnCard card) async {
-    // final finder = Finder(filter: Filter.byKey(card.rollNo));
-    // await _ownedCardFolder.delete(await _db, finder: finder);
+    print("delete key  : ${card.cardId}");
+    print(card.toJson());
+    final finder = Finder(filter: Filter.byKey(card.cardId));
+    await _ownedCardFolder.delete(await _db, finder: finder);
+    print("delete complete");
+  }
+
+  Future clear() async {
+    await _ownedCardFolder.drop(await _db);
   }
 
   Future<List<OwnCard>> getAllCards() async {
     final recordSnapshot = await _ownedCardFolder.find(await _db);
     return recordSnapshot.map((snapshot) {
       final ownedCard = OwnCard.fromJson(snapshot.value);
+
       return ownedCard;
     }).toList();
-    
   }
 }

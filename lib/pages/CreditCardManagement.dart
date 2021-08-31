@@ -15,9 +15,9 @@ class CreditCardManagement extends StatefulWidget {
 class _CreditCardManagementState extends State<CreditCardManagement> {
   List<OwnCard> ownedCardList = [];
   GestureDetector creditCardTile(
-      {@required String cardNumber, bool isDefault = false}) {
+      {@required OwnCard card}) {
     String imageUrl = "";
-    CreditCardType cardType = detectCCType(cardNumber);
+    CreditCardType cardType = detectCCType(card.cardNumber);
     print(cardType.toString());
     switch (cardType) {
       case CreditCardType.amex:
@@ -37,12 +37,16 @@ class _CreditCardManagementState extends State<CreditCardManagement> {
         break;
     }
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => CreditCardDetail(),
+              builder: (context) => CreditCardDetail(
+                card: card,
+              ),
             ));
+
+        initialAction();
       },
       child: Container(
         padding: const EdgeInsets.all(15),
@@ -63,8 +67,9 @@ class _CreditCardManagementState extends State<CreditCardManagement> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("9999"),
-                  Text(isDefault ? "Default" : ""),
+                  Text(card.cardNumber.substring(
+                      card.cardNumber.length - 4, card.cardNumber.length)),
+                  Text(card.isDefault ? "Default" : ""),
                 ],
               ),
             )
@@ -84,7 +89,7 @@ class _CreditCardManagementState extends State<CreditCardManagement> {
 
   @override
   void initState() {
-    // TODO: implement initState
+  
     super.initState();
     initialAction();
   }
@@ -94,19 +99,22 @@ class _CreditCardManagementState extends State<CreditCardManagement> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
+        backgroundColor: Colors.white,
         elevation: 0,
-        title: Text("Payment Method"),
+        title: Text("Payment Method",style: TextStyle(
+          color: Colors.black
+        )),
         leading: IconButton(onPressed: () {}, icon: Icon(Icons.close)),
       ),
       body: Column(
         children: [
+          SizedBox(height: 20,),
           Expanded(
             child: ListView.builder(
               itemCount: ownedCardList.length,
               itemBuilder: (context, index) {
                 return creditCardTile(
-                    cardNumber: ownedCardList[index].cardNumber,
-                    isDefault: false);
+                    card: ownedCardList[index]);
               },
             ),
           ),

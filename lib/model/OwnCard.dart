@@ -11,6 +11,8 @@ String ownCardToJson(OwnCard data) {
 }
 
 class OwnCard {
+  int cardId;
+  String ownerName;
   String cardNumber;
   String cardCvc;
   String cardExpireMm;
@@ -18,6 +20,8 @@ class OwnCard {
   bool isDefault;
 
   OwnCard({
+    this.cardId,
+    this.ownerName,
     this.cardNumber,
     this.cardCvc,
     this.cardExpireMm,
@@ -26,6 +30,8 @@ class OwnCard {
   });
 
   factory OwnCard.fromJson(Map<String, dynamic> json) => new OwnCard(
+        cardId: json["card_id"],
+        ownerName: json["owner_name"],
         cardNumber: json["card_number"],
         cardCvc: json["card_cvc"],
         cardExpireMm: json["card_expire_mm"],
@@ -33,7 +39,9 @@ class OwnCard {
         isDefault: json["isDefault"],
       );
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson({int id}) => {
+        "card_id": id,
+        "owner_name" : ownerName,
         "card_number": cardNumber,
         "card_cvc": cardCvc,
         "card_expire_mm": cardExpireMm,

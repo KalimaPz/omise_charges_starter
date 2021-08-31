@@ -36,7 +36,7 @@ class _CreditCardAddState extends State<CreditCardAdd> {
   @override
   void initState() {
     initialAction();
-    
+
     super.initState();
   }
 
@@ -128,23 +128,32 @@ class _CreditCardAddState extends State<CreditCardAdd> {
           )),
           ElevatedButton(
               onPressed: () async {
-                // cardCollection.addNewCard();
-                // final res = await StudentDao().insertStudent(Student(name: "donnukrit",rollNo: 1));
                 final res = await CardAccessObject().insertOwnedCard(OwnCard(
-                    cardCvc: "771",
-                    cardExpireMm: "10",
-                    cardExpireYy: "23",
-                    cardNumber: "5577557129258910",
+                    ownerName: ownerNameController.text,
+                    cardCvc: cvcController.text,
+                    cardExpireMm: expireMonthController.text,
+                    cardExpireYy: expireYearController.text,
+                    cardNumber: cardNumberController.text,
                     isDefault: false));
                 print(res);
               },
               child: Text("Add Card")),
           ElevatedButton(
               onPressed: () async {
+                // await CardAccessObject().delete(3);
+              },
+              child: Text("Del Card")),
+          ElevatedButton(
+              onPressed: () async {
+                final res = await CardAccessObject().clear();
+              },
+              child: Text("Clear All")),
+          ElevatedButton(
+              onPressed: () async {
                 // cardCollection.getAllCard()();
                 // final res = await StudentDao().getAllStudents();
                 final res = await CardAccessObject().getAllCards();
-                print(res.toSet());
+                print(res);
               },
               child: Text("Get All")),
           GestureDetector(

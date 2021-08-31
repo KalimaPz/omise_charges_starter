@@ -1,10 +1,28 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_credit_card/credit_card_widget.dart';
+import 'package:omise_playground/local_db/CardAccessObject.dart';
+import 'package:omise_playground/model/OwnCard.dart';
 
-class CreditCardDetail extends StatelessWidget {
-  const CreditCardDetail({Key key}) : super(key: key);
+class CreditCardDetail extends StatefulWidget {
+  final OwnCard card;
 
+  const CreditCardDetail({
+    Key key,
+    this.card,
+  }) : super(key: key);
+
+  @override
+  _CreditCardDetailState createState() => _CreditCardDetailState();
+}
+
+class _CreditCardDetailState extends State<CreditCardDetail> {
+  bool isDefaultCard = false;
+  @override
+  void initState() {
+    isDefaultCard = widget.card.isDefault;
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,14 +41,13 @@ class CreditCardDetail extends StatelessWidget {
         ),
       ),
       body: Column(
-        // physics: NeverScrollableScrollPhysics(),
         children: [
           CreditCardWidget(
             cardBgColor: Color(0xffffff),
-            cardNumber: "5577 5571 2925 8910",
-            expiryDate: "10/23",
-            cardHolderName: "Donnukrit Satirakul.",
-            cvvCode: "771",
+            cardNumber: widget.card.cardNumber,
+            expiryDate: "${widget.card.cardExpireMm}/${widget.card.cardExpireYy}",
+            cardHolderName: "${widget.card.ownerName}",
+            cvvCode: widget.card.cardCvc,
             textStyle: TextStyle(
                 fontSize: 16,
                 letterSpacing: 0.35,
@@ -44,9 +61,14 @@ class CreditCardDetail extends StatelessWidget {
               children: [
                 Expanded(child: Text('Set as Default')),
                 CupertinoSwitch(
-                  value: true,
+                  value: isDefaultCard,
                   onChanged: (value) {
-                    return 0;
+                    setState(() {
+                      // print(widget.card.cardId);
+                       isDefaultCard = !isDefaultCard;
+                       
+                    });
+                    CardAccessObject().setDefaultCard(widget.card,isDefaultCard);
                   },
                 )
               ],
@@ -58,12 +80,16 @@ class CreditCardDetail extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                
-                Icon(Icons.info,color: Colors.grey.withOpacity(0.45),),
-                SizedBox(width: 10,),
+                Icon(
+                  Icons.info,
+                  color: Colors.grey.withOpacity(0.45),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
                 Expanded(
                   child: Text(
-                      "หมายเหตุ : ทดสอบ ทดสอบ ทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบ"),
+                      "${widget.card.cardId} หมายเหตุ : ทดสอบ ทดสอบ ทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบทดสอบ"),
                 )
               ],
             ),
@@ -72,10 +98,36 @@ class CreditCardDetail extends StatelessWidget {
               alignment: Alignment.center,
               width: MediaQuery.of(context).size.width,
               padding: const EdgeInsets.symmetric(vertical: 15),
-              // color: Colors.blue,
               color: Colors.white,
               child: InkWell(
-                onTap: () {},
+                onTap: () async {
+                  showCupertinoDialog(
+                    context: context,
+                    builder: (context) {
+                      return CupertinoAlertDialog(
+                        title: Text(
+                          "Delete",
+                        ),
+                        actions: [
+                          CupertinoDialogAction(
+                            child: Text("Cancel"),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                          CupertinoDialogAction(
+                              child: Text("Delete"),
+                              onPressed: () async {
+                                await CardAccessObject().delete(widget.card);
+                                int count = 0;
+
+                                Navigator.popUntil(context, (route) {
+                                  return count++ == 2;
+                                });
+                              })
+                        ],
+                      );
+                    },
+                  );
+                },
                 splashColor: Colors.black12,
                 highlightColor: Colors.white,
                 child: Text("Delete",
