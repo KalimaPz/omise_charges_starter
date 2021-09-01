@@ -14,8 +14,7 @@ class CreditCardManagement extends StatefulWidget {
 
 class _CreditCardManagementState extends State<CreditCardManagement> {
   List<OwnCard> ownedCardList = [];
-  GestureDetector creditCardTile(
-      {@required OwnCard card}) {
+  GestureDetector creditCardTile({@required OwnCard card}) {
     String imageUrl = "";
     CreditCardType cardType = detectCCType(card.cardNumber);
     print(cardType.toString());
@@ -89,7 +88,6 @@ class _CreditCardManagementState extends State<CreditCardManagement> {
 
   @override
   void initState() {
-  
     super.initState();
     initialAction();
   }
@@ -101,24 +99,39 @@ class _CreditCardManagementState extends State<CreditCardManagement> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text("Payment Method",style: TextStyle(
-          color: Colors.black
-        )),
+        title: Text("Payment Method", style: TextStyle(color: Colors.black)),
         leading: IconButton(onPressed: () {}, icon: Icon(Icons.close)),
       ),
       body: Column(
         children: [
-          SizedBox(height: 20,),
-          Expanded(
-            child: ListView.builder(
-              itemCount: ownedCardList.length,
-              itemBuilder: (context, index) {
-                return creditCardTile(
-                    card: ownedCardList[index]);
-              },
-            ),
+          SizedBox(
+            height: 20,
           ),
+          ownedCardList.length != 0
+              ? Expanded(
+                  child: ListView.builder(
+                    itemCount: ownedCardList.length,
+                    itemBuilder: (context, index) {
+                      return creditCardTile(card: ownedCardList[index]);
+                    },
+                  ),
+                )
+              : Expanded(
+                  child: Center(
+                      child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image(
+                        width: 64,
+                        image: AssetImage("assets/icon/credit-card.png"),
+                      ),
+                      SizedBox(height: 20),
+                      Text("Card Not Added")
+                    ],
+                  )),
+                ),
           GestureDetector(
+            behavior: HitTestBehavior.translucent,
             onTap: () async {
               await Navigator.push(
                   context,

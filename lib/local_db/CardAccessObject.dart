@@ -11,30 +11,54 @@ class CardAccessObject {
   Future insertOwnedCard(OwnCard card) async {
     final recordSnapshot =
         await _ownedCardFolder.find(await _db); // find length
-    print(recordSnapshot.length); // last index
+    if (recordSnapshot.length <= 0) {
+      await _ownedCardFolder.add(await _db, card.toJson(id: 1));
+      setDefaultCard(OwnCard(cardId: 1));
+    } else {
+      print(recordSnapshot.last.value["card_id"].runtimeType);
+      int previous = recordSnapshot.last.value["card_id"];
 
-    await _ownedCardFolder.add(
-        await _db, card.toJson(id: recordSnapshot.length + 1));
-    print('OwnedCard Inserted successfully !!');
+      await _ownedCardFolder.add(await _db, card.toJson(id: previous + 1));
+      print("card id => ${recordSnapshot.length + 1}");
+      setDefaultCard(OwnCard(cardId: previous + 1));
+    }
   }
 
-  Future updateOwnedCard(OwnCard card) async {
-    // final finder = Finder(filter: Filter.byKey(card.rollNo));
-    // await _ownedCardFolder.update(await _db, card.toJson(), finder: finder);
-  }
-  Future setDefaultCard(OwnCard card, bool value) async {
-    final finder = Finder(filter: Filter.byKey(card.cardId));
-    await _ownedCardFolder.update(await _db, {"isDefault": value},
+  Future setDefaultCard(OwnCard card) async {
+    var finder = Finder(filter: Filter.notEquals("card_id", card.cardId));
+    await _ownedCardFolder.update(await _db, {"isDefault": false},
         finder: finder);
-    print("set default");
+    finder = Finder(filter: Filter.equals("card_id", card.cardId));
+    await _ownedCardFolder.update(await _db, {"isDefault": true},
+        finder: finder);
+    print("set default card done : card id : ${card.cardId}");
   }
 
-  Future delete(OwnCard card) async {
-    print("delete key  : ${card.cardId}");
-    print(card.toJson());
-    final finder = Finder(filter: Filter.byKey(card.cardId));
-    await _ownedCardFolder.delete(await _db, finder: finder);
-    print("delete complete");
+  Future<bool> delete(OwnCard card) async {
+    // FLOW  ---> DELETE ELEMENT --> SET_LASTEST_ADDED = DEFAULT --> DONE --> return complete
+    var finder = Finder(filter: Filter.equals("card_id", card.cardId));
+    if (card.isDefault) { // case item is default 
+      final res = await _ownedCardFolder.delete(await _db, finder: finder);
+      final recordSnapshot = await _ownedCardFolder.find(await _db);
+      print("LAST ID");
+      print(recordSnapshot.last.value["card_id"]);
+      if (res == 1 && res != 0) { 
+        await setDefaultCard(OwnCard(cardId: recordSnapshot.last.value["card_id"]));
+        return true;
+      } else {
+        print("selected item has not delete");
+        return false;
+      }
+    } else {
+      final res = await _ownedCardFolder.delete(await _db, finder: finder);
+      if (res == 1 && res != 0) {
+        print("selected item has been delete");
+        return true;
+      } else {
+        print("selected item has not delete");
+        return false;
+      }
+    }
   }
 
   Future clear() async {
@@ -44,8 +68,8 @@ class CardAccessObject {
   Future<List<OwnCard>> getAllCards() async {
     final recordSnapshot = await _ownedCardFolder.find(await _db);
     return recordSnapshot.map((snapshot) {
+      // print(snapshot.value);
       final ownedCard = OwnCard.fromJson(snapshot.value);
-
       return ownedCard;
     }).toList();
   }
